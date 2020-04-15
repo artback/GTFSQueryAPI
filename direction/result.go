@@ -1,5 +1,5 @@
 package direction
 
-func GetResult(lat string, lon string, radius int32, maxDepartures int32, maxStops int32) string {
+func GetResult(lat float64, lon float64, radius int64, maxDepartures int64, maxStops int64) []result {
 
 }
