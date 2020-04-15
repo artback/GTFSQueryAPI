@@ -1,0 +1,9 @@
+database:
+  dbname: "gtfs"
+  driver: "postgres"
+  host: "127.0.0.1"
+  password: "allbin"
+  port: 5432
+  user: "allbin"
+host:
+  url: "https://transitfeeds.com/p/trafiklab/50/latest/download"
