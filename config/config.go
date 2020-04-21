@@ -9,10 +9,12 @@ const filePath = "config/config.yaml"
 
 type Configuration struct {
 	Database DatabaseConfiguration `yaml:"database"`
-	Host     HostConfiguration     `yaml:host`
+	Default  DefaultConfiguration  `yaml:default`
 }
-type HostConfiguration struct {
-	Url string `yaml:url`
+type DefaultConfiguration struct {
+	Radius        int64 `yaml:radius`
+	MaxDepartures int64 `yaml:maxdepartures`
+	MaxStops      int64 `yaml:maxstops`
 }
 
 type DatabaseConfiguration struct {
