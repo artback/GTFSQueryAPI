@@ -36,22 +36,24 @@ func groupAndSortRows(rows *sql.Rows, maxStops int, maxDepartures int) []Result 
 		if err := rows.Scan(&row.id, &row.arrival_time, &row.departure_time, &row.name, &row.lat, &row.lon, &row.headsign, &row.date); err != nil {
 			log.Fatal(err)
 		}
+
 		loc, _ := time.LoadLocation("Europe/Stockholm")
-		now := time.Now().In(loc)
-		hour_diff := now.Hour() - time.Now().In(time.UTC).Hour()
-		d, _ := time.Parse(time.RFC3339, row.date)
-		d = addTime(d, row.departure_time).Add(time.Hour * time.Duration(-hour_diff))
-		if d.After(now) {
+		time_diff := getTimeDifference(loc, time.UTC)
+		now := time.Now().In(time.UTC)
+		date, _ := time.Parse(time.RFC3339, row.date)
+		dep := addTime(date, row.departure_time).Add(time.Hour * time.Duration(-time_diff))
+		arr := addTime(date, row.arrival_time).Add(time.Hour * time.Duration(-time_diff))
+		if dep.After(now) {
 			if hashMap.Len() < maxStops {
 				value, exist := hashMap.GetOrInsert(row.id,
 					Result{
 						Stop{row.id, []string{row.lat, row.lon}, row.name},
-						[]Departure{{row.departure_time, row.arrival_time, d.Format(time.RFC3339),
+						[]Departure{{dep.Format("15:04:05"), arr.Format("15:04:05"), dep.Format("2006-01-02T15:04:05-07:00"),
 							Trip{row.headsign}}}})
 				if exist == true {
 					v := value.(Result)
 					if len(v.Departures) < maxDepartures {
-						v.Departures = append(v.Departures, Departure{row.departure_time, row.arrival_time, d.Format(time.RFC3339), Trip{row.headsign}})
+						v.Departures = append(v.Departures, Departure{dep.Format("15:04:05"), arr.Format("15:04:05"), dep.Format("2006-01-02T15:04:05-07:00"), Trip{row.headsign}})
 						hashMap.Set(row.id, v)
 					}
 				}
@@ -76,4 +78,9 @@ func addTime(t time.Time, tstring string) time.Time {
 		int_parts = append(int_parts, time.Duration(val))
 	}
 	return t.Add(time.Hour * int_parts[0]).Add(time.Minute * int_parts[1]).Add(time.Second * int_parts[2])
+}
+
+func getTimeDifference(location *time.Location, location2 *time.Location) int {
+	now := time.Now().In(location)
+	return now.Hour() - time.Now().In(location2).Hour()
 }
