@@ -35,11 +35,14 @@ func PlaceHandler(repo *query.Repository, w http.ResponseWriter, r *http.Request
 	if address != "" {
 		lat, lon = getCordinatesForAddress(address, geo)
 	}
-
-	res := GetResult(repo, lat, lon, int(radius), int(maxDepartures), int(maxStops))
-	err := json.NewEncoder(w).Encode(res)
-	if err != nil {
-		log.Fatal(err)
+	if address == "" && (lat == 0 || lon == 0) {
+		http.Error(w, "Missing obligatory parameters lat,lon or adress", http.StatusUnprocessableEntity)
+	} else {
+		res := GetResult(repo, lat, lon, int(radius), int(maxDepartures), int(maxStops))
+		err := json.NewEncoder(w).Encode(res)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 func getCordinatesForAddress(address string, geo *geo.GoogleGeo) (lat float64, lon float64) {

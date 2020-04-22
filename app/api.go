@@ -8,6 +8,7 @@ import (
 	geo "github.com/martinlindhe/google-geolocate"
 	"log"
 	"net/http"
+	"os"
 )
 
 var (
@@ -19,7 +20,7 @@ var (
 func init() {
 	conf = new(config.Configuration)
 	repo = new(query.Repository)
-	geoclient = geo.NewGoogleGeo("api-key")
+	geoclient = geo.NewGoogleGeo(os.Getenv("GOOGLE_GEOCODE_API_KEY"))
 	err := config.Init(conf)
 	if err != nil {
 		panic(err)
@@ -38,7 +39,7 @@ func Run() {
 }
 
 func placeHandler(w http.ResponseWriter, r *http.Request) {
-	direction.PlaceHandler(repo, w, r, conf.Default, geo)
+	direction.PlaceHandler(repo, w, r, conf.Default, geoclient)
 }
 func commonMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
