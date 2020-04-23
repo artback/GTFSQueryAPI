@@ -14,13 +14,13 @@ import (
 var (
 	conf      *config.Configuration
 	repo      *query.Repository
-	geoclient *geo.GoogleGeo
+	geoClient *geo.GoogleGeo
 )
 
 func init() {
 	conf = new(config.Configuration)
 	repo = new(query.Repository)
-	geoclient = geo.NewGoogleGeo(os.Getenv("GOOGLE_GEOCODE_API_KEY"))
+	geoClient = geo.NewGoogleGeo(os.Getenv("GOOGLE_GEOCODE_API_KEY"))
 	err := config.Init(conf)
 	if err != nil {
 		panic(err)
@@ -39,7 +39,7 @@ func Run() {
 }
 
 func placeHandler(w http.ResponseWriter, r *http.Request) {
-	direction.PlaceHandler(repo, w, r, conf.Default, geoclient)
+	direction.PlaceHandler(repo, w, r, conf.Default, geoClient)
 }
 func commonMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
