@@ -1,18 +1,24 @@
-name: Build and test PR
+name: Test PR
 
 on:
-  push:
-    branches:
-      - develop
+  pull_request:
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-      - run: yarn install
-      - run: yarn build
-#      - run: yarn test
+
+    - uses: actions/checkout@master
+
+    - uses: actions/cache@v1
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - uses: actions/setup-go@v1
+      with:
+        go-version: '1.13.x' # The Go version to download (if necessary) and use.
+
+    - run: go test ./...
