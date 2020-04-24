@@ -1,0 +1,26 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+    labels:
+        app: orders-mobile-ui
+    name: orders-mobile-ui
+    namespace: transport-test
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: go-gtfs-query-api
+    strategy:
+        rollingUpdate:
+            maxSurge: 1
+            maxUnavailable: 1
+        type: RollingUpdate
+    template:
+        metadata:
+            labels:
+                app: go-gtfs-query-api
+        spec:
+            restartPolicy: Always
+            containers:
+              - image: eu.gcr.io/allbinary-204807/allbin/gtfs/go-gtfs-query-api:v0.1.1
+                  name: go-gtfs-query-api
