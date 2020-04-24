@@ -2,9 +2,9 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
     labels:
-        app: orders-mobile-ui
-    name: orders-mobile-ui
-    namespace: transport-test
+        app: go-gtfs-query-api
+    name: go-gtfs-query-api
+    namespace: gtfs-query 
 spec:
     replicas: 1
     selector:
@@ -22,5 +22,5 @@ spec:
         spec:
             restartPolicy: Always
             containers:
-              - image: eu.gcr.io/allbinary-204807/allbin/gtfs/go-gtfs-query-api:v0.1.1
+              - image: eu.gcr.io/allbinary-204807/allbin/gtfs/go-gtfs-query-api:v0.1.5
                   name: go-gtfs-query-api
