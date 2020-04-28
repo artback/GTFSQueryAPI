@@ -32,6 +32,7 @@ func Run() {
 	if err != nil {
 		panic(err)
 	}
+  log.Print("Server up and running...");
 	r := mux.NewRouter()
 	r.Use(commonMiddleware)
 	r.HandleFunc("/departures/place", placeHandler).Methods("GET")

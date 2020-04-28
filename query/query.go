@@ -40,5 +40,9 @@ func (r *Repository) Connect(c config.DatabaseConfiguration) error {
 	db_string := fmt.Sprintf("host=%s port=%d user=%s %s dbname=%s sslmode=disable",
 		host, port, user, passwordArg, db)
 	r.Db, err = sql.Open(c.Driver, db_string)
-	return err
+  if err != nil {
+    return err
+  }
+
+  return r.Db.Ping()
 }

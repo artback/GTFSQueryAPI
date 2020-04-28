@@ -13,7 +13,7 @@ import (
 
 func PlaceHandler(repo *query.Repository, w http.ResponseWriter, r *http.Request, d config.DefaultConfiguration, geo *geo.GoogleGeo) {
 	q := r.URL.Query()
-	apiKey := os.Getenv("API_KEY")
+	apiKey := os.Getenv("GTFS_QUERY_API_KEY")
 	if apiKey != "" {
 		k := q.Get("k")
 		if k != apiKey {
