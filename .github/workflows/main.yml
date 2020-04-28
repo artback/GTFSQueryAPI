@@ -64,6 +64,6 @@ jobs:
     # Push the Docker images to Google Container Registry
     - name: Publish
       run: |
-        docker tag "$IMAGE_BASE"/go-gtfs-query-api:"$GITHUB_SHA" $IMAGE_BASE"/go-gtfs-query-api
+        docker tag "$IMAGE_BASE"/go-gtfs-query-api:"$GITHUB_SHA" "$IMAGE_BASE"/go-gtfs-query-api
         docker push "$IMAGE_BASE"/go-gtfs-query-api:"$GITHUB_SHA" 
         docker push "$IMAGE_BASE"/go-gtfs-query-api
