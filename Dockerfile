@@ -30,7 +30,6 @@ WORKDIR /app
 # Copy the Pre-built binary file from the previous stage
 COPY --from=builder /app/main .
 COPY --from=builder /app/config ./config
-COPY --from=builder /app/query/queries.sql ./query/queries.sql
 
 # Command to run the executable
 CMD ["./main"]
