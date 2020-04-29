@@ -51,6 +51,10 @@ func PlaceHandler(repo *query.Repository, w http.ResponseWriter, r *http.Request
 		return
 	}
 	res := GetResult(repo, lat, lon, int(radius), int(maxDepartures), int(maxStops))
+	if len(res) == 0 {
+		json.NewEncoder(w).Encode(make([]struct{}, 0))
+		return
+	}
 	err := json.NewEncoder(w).Encode(res)
 	if err != nil {
 		log.Fatal(err)
