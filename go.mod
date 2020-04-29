@@ -1,4 +1,4 @@
-module github.com/artback/gtfsQueryGoApi
+module github.com/allbin/gtfsQueryGoApi
 
 go 1.14
 

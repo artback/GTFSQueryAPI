@@ -1,9 +1,9 @@
 package app
 
 import (
-	"github.com/artback/gtfsQueryGoApi/config"
-	"github.com/artback/gtfsQueryGoApi/direction"
-	"github.com/artback/gtfsQueryGoApi/query"
+	"github.com/allbin/gtfsQueryGoApi/config"
+	"github.com/allbin/gtfsQueryGoApi/direction"
+	"github.com/allbin/gtfsQueryGoApi/query"
 	"github.com/gorilla/mux"
 	geo "github.com/martinlindhe/google-geolocate"
 	"log"
@@ -32,7 +32,7 @@ func Run() {
 	if err != nil {
 		panic(err)
 	}
-  log.Print("Server up and running...");
+	log.Print("Server up and running...")
 	r := mux.NewRouter()
 	r.Use(commonMiddleware)
 	r.HandleFunc("/departures/place", placeHandler).Methods("GET")

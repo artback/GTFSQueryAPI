@@ -3,8 +3,8 @@ package direction
 import (
 	"database/sql"
 	"fmt"
-	"github.com/artback/gtfsQueryGoApi/query"
-	"github.com/artback/gtfsQueryGoApi/time"
+	"github.com/allbin/gtfsQueryGoApi/query"
+	"github.com/allbin/gtfsQueryGoApi/time_processing"
 	"github.com/cornelk/hashmap"
 	"log"
 	"strconv"
@@ -12,22 +12,12 @@ import (
 )
 
 func GetResult(r *query.Repository, la float64, lo float64, radius int, maxDepartures int, maxStops int) []Result {
-	rows, err := getStops(r.Db, strconv.FormatFloat(la, 'f', -1, 64),
+	rows, err := r.GetStops(strconv.FormatFloat(la, 'f', -1, 64),
 		strconv.FormatFloat(lo, 'f', -1, 64), strconv.Itoa(radius), strconv.Itoa(maxStops))
 	if err != nil {
 		panic(err)
 	}
 	return groupAndSortRows(rows, maxStops, maxDepartures)
-}
-
-func getStops(db *sql.DB, lat string, lon string, radius string, maxstops string) (*sql.Rows, error) {
-	return db.Query(
-		fmt.Sprintf("SELECT s.stop_id as id, arrival_time, departure_time, stop_name as name, stop_lat as lat, stop_lon as lon,trip_headsign as headsign, date"+
-			" from stop_times JOIN stops s ON s.stop_id = stop_times.stop_id"+
-			" JOIN trips t on stop_times.trip_id = t.trip_id JOIN calendar_dates cd on t.service_id = cd.service_id"+
-			" WHERE s.stop_id in (select distinct stop_id from stops where st_dwithin(geography(st_point(stop_lat, stop_lon)), geography(st_point(%s,%s)), %s)"+
-			" order by stop_id limit %s)  AND ((date(current_timestamp + interval '- 4 hours') = cd.date"+
-			" OR date(current_timestamp + interval '20 hours') = cd.date));  ", lat, lon, radius, maxstops))
 }
 
 func groupAndSortRows(rows *sql.Rows, maxStops int, maxDepartures int) []Result {
@@ -37,8 +27,11 @@ func groupAndSortRows(rows *sql.Rows, maxStops int, maxDepartures int) []Result 
 		if err := rows.Scan(&row.id, &row.arrival_time, &row.departure_time, &row.name, &row.lat, &row.lon, &row.headsign, &row.date); err != nil {
 			log.Fatal(err)
 		}
-
-		loc, _ := time.LoadLocation("Europe/Stockholm")
+		loc_name := "Europe/Stockholm"
+		loc, err := time.LoadLocation(loc_name)
+		if err != nil {
+			panic(fmt.Sprintf("Problem loading location %s", loc_name))
+		}
 		timeDiff := time_processing.GetTimeDifference(loc, time.UTC)
 		now := time.Now().In(time.UTC)
 		date, _ := time.Parse(time.RFC3339, row.date)
@@ -55,10 +48,7 @@ func groupAndSortRows(rows *sql.Rows, maxStops int, maxDepartures int) []Result 
 				}
 
 			} else {
-				resultMap.Insert(row.id, Result{
-					Stop{row.id, []string{row.lat, row.lon}, row.name},
-					[]Departure{{dep.Format("15:04:05"), arr.Format("15:04:05"), dep.Format("2006-01-02T15:04:05-07:00"),
-						Trip{row.headsign}}}})
+				resultMap.Insert(row.id, rowToresult(row, arr, dep))
 
 			}
 		}
@@ -68,4 +58,10 @@ func groupAndSortRows(rows *sql.Rows, maxStops int, maxDepartures int) []Result 
 		r = append(r, v.Value.(Result))
 	}
 	return r
+}
+func rowToresult(r row, arr time.Time, dep time.Time) Result {
+	return Result{
+		Stop{r.id, []string{r.lat, r.lon}, r.name},
+		[]Departure{{dep.Format("15:04:05"), arr.Format("15:04:05"), dep.Format("2006-01-02T15:04:05-07:00"),
+			Trip{r.headsign}}}}
 }

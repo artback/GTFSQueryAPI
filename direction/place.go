@@ -2,8 +2,9 @@ package direction
 
 import (
 	"encoding/json"
-	"github.com/artback/gtfsQueryGoApi/config"
-	"github.com/artback/gtfsQueryGoApi/query"
+	"github.com/allbin/gtfsQueryGoApi/config"
+	"github.com/allbin/gtfsQueryGoApi/geocode"
+	"github.com/allbin/gtfsQueryGoApi/query"
 	geo "github.com/martinlindhe/google-geolocate"
 	"log"
 	"net/http"
@@ -43,7 +44,7 @@ func PlaceHandler(repo *query.Repository, w http.ResponseWriter, r *http.Request
 
 	address := q.Get("adress")
 	if address != "" {
-		lat, lon = getCordinatesForAddress(address, geo)
+		lat, lon = geocode.GetCordinatesForAddress(address, geo)
 	}
 	if address == "" && (lat == 0 || lon == 0) {
 		http.Error(w, "Missing obligatory parameters lat,lon or adress", http.StatusUnprocessableEntity)
@@ -54,8 +55,4 @@ func PlaceHandler(repo *query.Repository, w http.ResponseWriter, r *http.Request
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-func getCordinatesForAddress(address string, geo *geo.GoogleGeo) (lat float64, lon float64) {
-	res, _ := geo.Geocode(address)
-	return res.Lat, res.Lng
 }
