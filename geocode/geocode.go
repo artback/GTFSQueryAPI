@@ -9,6 +9,7 @@ func GetCordinatesForAddress(address string, geo *geo.GoogleGeo) (lat float64, l
 	res, err := geo.Geocode(address)
 	if err != nil {
 		log.Println(err)
+		return 0, 0
 	}
 	return res.Lat, res.Lng
 }

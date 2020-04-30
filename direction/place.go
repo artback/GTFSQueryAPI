@@ -46,8 +46,8 @@ func PlaceHandler(repo *query.Repository, w http.ResponseWriter, r *http.Request
 	if address != "" {
 		lat, lon = geocode.GetCordinatesForAddress(address, geo)
 	}
-	if address == "" && (lat == 0 || lon == 0) {
-		http.Error(w, "Missing obligatory parameters lat,lon or adress", http.StatusUnprocessableEntity)
+	if lat == 0 || lon == 0 {
+		http.Error(w, "Missing or incorrect parameters lat,lon or adress", http.StatusUnprocessableEntity)
 		return
 	}
 	res := GetResult(repo, lat, lon, int(radius), int(maxDepartures), int(maxStops))
