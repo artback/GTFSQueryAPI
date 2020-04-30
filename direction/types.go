@@ -21,12 +21,13 @@ type Trip struct {
 }
 
 type row struct {
-	id             string
-	arrival_time   string
-	departure_time string
-	name           string
-	lat            string
-	lon            string
-	headsign       string
-	date           string
+	id            string
+	arrivalTime   string
+	departureTime string
+	name          string
+	lat           string
+	lon           string
+	headsign      string
+	date          string
+	dateString    string
 }

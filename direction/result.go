@@ -22,9 +22,10 @@ func GetResult(r *query.Repository, la float64, lo float64, radius int, maxDepar
 
 func groupAndSortRows(rows *sql.Rows, maxStops int, maxDepartures int) []Result {
 	resultMap := hashmap.New(uintptr(maxStops * 2))
+
 	for rows.Next() {
 		var row row
-		if err := rows.Scan(&row.id, &row.arrival_time, &row.departure_time, &row.name, &row.lat, &row.lon, &row.headsign, &row.date); err != nil {
+		if err := rows.Scan(&row.id, &row.arrivalTime, &row.departureTime, &row.name, &row.lat, &row.lon, &row.headsign, &row.date, &row.dateString); err != nil {
 			log.Fatal(err)
 		}
 		loc_name := "Europe/Stockholm"
@@ -35,8 +36,8 @@ func groupAndSortRows(rows *sql.Rows, maxStops int, maxDepartures int) []Result 
 		timeDiff := time_processing.GetTimeDifference(loc, time.UTC)
 		now := time.Now().In(time.UTC)
 		date, _ := time.Parse(time.RFC3339, row.date)
-		dep := time_processing.AddTime(date, row.departure_time).Add(time.Hour * time.Duration(-timeDiff))
-		arr := time_processing.AddTime(date, row.arrival_time).Add(time.Hour * time.Duration(-timeDiff))
+		dep := time_processing.AddTime(date, row.departureTime).Add(time.Hour * time.Duration(-timeDiff))
+		arr := time_processing.AddTime(date, row.arrivalTime).Add(time.Hour * time.Duration(-timeDiff))
 
 		if dep.After(now) {
 			value, exist := resultMap.Get(row.id)
