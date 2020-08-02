@@ -56,9 +56,11 @@ func (p *Places) PlaceHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing or incorrect parameters lat,lon or address", http.StatusUnprocessableEntity)
 		return
 	}
-	res := GetResult(p.Repo, lat, lon, int(radius), int(maxDepartures), int(maxStops))
+	res, err := GetResult(p.Repo, lat, lon, int(radius), int(maxDepartures), int(maxStops))
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+	}
 
-	var err error
 	if len(res) > 0 {
 		err = json.NewEncoder(w).Encode(res)
 	} else {

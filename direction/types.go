@@ -1,5 +1,7 @@
 package direction
 
+import "time"
+
 type Result struct {
 	Stop       Stop        `json:"stop"`
 	Departures []Departure `json:"departures"`
@@ -30,4 +32,9 @@ type row struct {
 	headsign      string
 	date          string
 	dateString    string
+}
+
+type times struct {
+	Arrival   time.Time
+	Departure time.Time
 }
