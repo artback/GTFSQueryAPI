@@ -26,8 +26,6 @@ type DatabaseConfiguration struct {
 	Database string `yaml:"dbname"`
 }
 
-var c *Configuration
-
 func Init(co *Configuration) error {
 	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
@@ -37,4 +35,9 @@ func Init(co *Configuration) error {
 	err = yaml.Unmarshal(data, &co)
 
 	return err
+}
+func New() (*Configuration, error) {
+	conf := new(Configuration)
+	error := Init(conf)
+	return conf, error
 }

@@ -7,20 +7,18 @@ import (
 	"github.com/allbin/gtfsQueryGoApi/time_processing"
 	"github.com/cornelk/hashmap"
 	"log"
-	"strconv"
 	"time"
 )
 
-func GetResult(r *query.Repository, la float64, lo float64, radius int, maxDepartures int, maxStops int) []Result {
-	rows, err := r.GetStops(strconv.FormatFloat(la, 'f', -1, 64),
-		strconv.FormatFloat(lo, 'f', -1, 64), strconv.Itoa(radius), strconv.Itoa(maxStops))
+func GetResult(r *query.Repository, la float64, lo float64, radius int, maxDepartures int, maxStops int) ([]Result, error) {
+	rows, err := r.GetStops(la, lo, radius, maxStops)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return groupAndSortRows(rows, maxStops, maxDepartures)
+	return groupSort(rows, maxStops, maxDepartures)
 }
 
-func groupAndSortRows(rows *sql.Rows, maxStops int, maxDepartures int) []Result {
+func groupSort(rows *sql.Rows, maxStops int, maxDepartures int) ([]Result, error) {
 	resultMap := hashmap.New(uintptr(maxStops * 2))
 
 	for rows.Next() {
@@ -28,28 +26,23 @@ func groupAndSortRows(rows *sql.Rows, maxStops int, maxDepartures int) []Result 
 		if err := rows.Scan(&row.id, &row.arrivalTime, &row.departureTime, &row.name, &row.lat, &row.lon, &row.headsign, &row.date, &row.dateString); err != nil {
 			log.Fatal(err)
 		}
-		loc_name := "Europe/Stockholm"
-		loc, err := time.LoadLocation(loc_name)
+		times, err := getTimes(row)
 		if err != nil {
-			panic(fmt.Sprintf("Problem loading location %s", loc_name))
+			return nil, err
 		}
-		timeDiff := time_processing.GetTimeDifference(loc, time.UTC)
-		now := time.Now().In(time.UTC)
-		date, _ := time.Parse(time.RFC3339, row.date)
-		dep := time_processing.AddTime(date, row.departureTime).Add(time.Hour * time.Duration(-timeDiff))
-		arr := time_processing.AddTime(date, row.arrivalTime).Add(time.Hour * time.Duration(-timeDiff))
 
-		if dep.After(now) {
+		now := time.Now().In(time.UTC)
+		if times.Departure.After(now) {
 			value, exist := resultMap.Get(row.id)
 			if exist == true {
 				v := value.(Result)
 				if len(v.Departures) < maxDepartures {
-					v.Departures = append(v.Departures, Departure{dep.Format("15:04:05"), arr.Format("15:04:05"), dep.Format("2006-01-02T15:04:05-07:00"), Trip{row.headsign}})
+					v.Departures = append(v.Departures, newDeparture(row, times))
 					resultMap.Set(row.id, v)
 				}
 
 			} else {
-				resultMap.Insert(row.id, rowToresult(row, arr, dep))
+				resultMap.Insert(row.id, rowResult(row, times))
 
 			}
 		}
@@ -58,11 +51,50 @@ func groupAndSortRows(rows *sql.Rows, maxStops int, maxDepartures int) []Result 
 	for v := range resultMap.Iter() {
 		r = append(r, v.Value.(Result))
 	}
-	return r
+	return r, nil
 }
-func rowToresult(r row, arr time.Time, dep time.Time) Result {
+func getTimes(row row) (*times, error) {
+	locName := "Europe/Stockholm"
+	loc, err := time.LoadLocation(locName)
+	if err != nil {
+		return nil, fmt.Errorf("problem loading location %s", locName)
+	}
+	timeDiff := time_processing.GetTimeDifference(loc, time.UTC)
+	date, _ := time.Parse(time.RFC3339, row.date)
+	departureTime, err := time_processing.AddTime(date, row.departureTime)
+	if err != nil {
+		return nil, err
+	}
+	dep := departureTime.Add(time.Hour * time.Duration(-timeDiff))
+	arrivalTime, err := time_processing.AddTime(date, row.arrivalTime)
+	if err != nil {
+		return nil, err
+	}
+	arr := arrivalTime.Add(time.Hour * time.Duration(-timeDiff))
+	return &times{arr, dep}, nil
+}
+func rowResult(row row, times *times) Result {
 	return Result{
-		Stop{r.id, []string{r.lat, r.lon}, r.name},
-		[]Departure{{dep.Format("15:04:05"), arr.Format("15:04:05"), dep.Format("2006-01-02T15:04:05-07:00"),
-			Trip{r.headsign}}}}
+		Stop{
+			row.id,
+			[]string{row.lat, row.lon},
+			row.name,
+		},
+		[]Departure{
+			{
+				times.Departure.Format("15:04:05"),
+				times.Arrival.Format("15:04:05"),
+				times.Departure.Format("2006-01-02T15:04:05-07:00"),
+				Trip{row.headsign},
+			},
+		},
+	}
+}
+func newDeparture(row row, times *times) Departure {
+	return Departure{
+		times.Departure.Format("15:04:05"),
+		times.Arrival.Format("15:04:05"),
+		times.Departure.Format("2006-01-02T15:04:05-07:00"),
+		Trip{row.headsign},
+	}
 }
