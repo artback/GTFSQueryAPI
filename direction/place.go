@@ -44,19 +44,20 @@ func PlaceHandler(repo *query.Repository, w http.ResponseWriter, r *http.Request
 
 	address := q.Get("adress")
 	if address != "" {
-		lat, lon = geocode.GetCordinatesForAddress(address, geo)
+		lat, lon = geocode.GetCoordinates(address, geo)
 	}
 	if lat == 0 || lon == 0 {
-		http.Error(w, "Missing or incorrect parameters lat,lon or adress", http.StatusUnprocessableEntity)
+		http.Error(w, "Missing or incorrect parameters lat,lon or address", http.StatusUnprocessableEntity)
 		return
 	}
 	res := GetResult(repo, lat, lon, int(radius), int(maxDepartures), int(maxStops))
-	if len(res) == 0 {
-		json.NewEncoder(w).Encode(make([]struct{}, 0))
-		return
+
+	var err error
+	if len(res) > 0 {
+		err = json.NewEncoder(w).Encode(res)
+	} else {
+		err = json.NewEncoder(w).Encode(make([]struct{}, 0))
 	}
-	err := json.NewEncoder(w).Encode(res)
-	if err != nil {
-		log.Fatal(err)
-	}
+	http.Error(w, fmt.Sprintf("Error encoding JSON %s", err), http.StatusInternalServerError)
+	return
 }
