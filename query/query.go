@@ -47,6 +47,12 @@ func (r *Repository) Connect(c config.DatabaseConfiguration) error {
 	return r.Db.Ping()
 }
 
+func NewConnectedRepository(c config.DatabaseConfiguration) (*Repository, error) {
+	repo := new(Repository)
+	err := repo.Connect(c)
+	return repo, err
+}
+
 func (r *Repository) GetStops(lat string, lon string, radius string, maxstops string) (*sql.Rows, error) {
 	return r.Db.Query(
 		fmt.Sprintf("SELECT s.stop_id as id, arrival_time, departure_time, stop_name as name, stop_lat as lat, stop_lon as lon,"+
