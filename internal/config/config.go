@@ -36,7 +36,7 @@ func Init(co *Configuration) error {
 
 	return err
 }
-func NewConfig() (*Configuration, error) {
+func New() (*Configuration, error) {
 	conf := new(Configuration)
 	error := Init(conf)
 	return conf, error

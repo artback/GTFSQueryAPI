@@ -12,8 +12,8 @@ import (
 )
 
 func Run() {
-	conf, err := config.NewConfig()
-	repo, err := query.NewConnectedRepository(conf.Database)
+	conf, err := config.New()
+	repo, err := query.NewConnected(conf.Database)
 	if err != nil {
 		panic(err)
 	}

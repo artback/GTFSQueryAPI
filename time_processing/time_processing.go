@@ -6,17 +6,18 @@ import (
 	"time"
 )
 
-func AddTime(t time.Time, tstring string) time.Time {
-	parts := strings.Split(tstring, ":")
+func AddTime(t time.Time, timeString string) (*time.Time, error) {
+	parts := strings.Split(timeString, ":")
 	var intParts []time.Duration
 	for i := range parts {
 		val, err := strconv.Atoi(parts[i])
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 		intParts = append(intParts, time.Duration(val))
 	}
-	return t.Add(time.Hour * intParts[0]).Add(time.Minute * intParts[1]).Add(time.Second * intParts[2])
+	t = t.Add(time.Hour * intParts[0]).Add(time.Minute * intParts[1]).Add(time.Second * intParts[2])
+	return &t, nil
 }
 
 func GetTimeDifference(location *time.Location, location2 *time.Location) int {
