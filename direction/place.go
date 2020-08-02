@@ -2,11 +2,11 @@ package direction
 
 import (
 	"encoding/json"
-	"github.com/allbin/gtfsQueryGoApi/config"
+	"fmt"
 	"github.com/allbin/gtfsQueryGoApi/geocode"
+	"github.com/allbin/gtfsQueryGoApi/internal/config"
 	"github.com/allbin/gtfsQueryGoApi/query"
 	geo "github.com/martinlindhe/google-geolocate"
-	"log"
 	"net/http"
 	"os"
 	"strconv"

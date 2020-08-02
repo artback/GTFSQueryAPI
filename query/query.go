@@ -3,7 +3,7 @@ package query
 import (
 	"database/sql"
 	"fmt"
-	"github.com/allbin/gtfsQueryGoApi/config"
+	"github.com/allbin/gtfsQueryGoApi/internal/config"
 	_ "github.com/lib/pq"
 	"os"
 	"strconv"

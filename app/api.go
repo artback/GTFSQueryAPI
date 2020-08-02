@@ -1,8 +1,8 @@
 package app
 
 import (
-	"github.com/allbin/gtfsQueryGoApi/config"
 	"github.com/allbin/gtfsQueryGoApi/direction"
+	"github.com/allbin/gtfsQueryGoApi/internal/config"
 	"github.com/allbin/gtfsQueryGoApi/query"
 	"github.com/gorilla/mux"
 	geo "github.com/martinlindhe/google-geolocate"
