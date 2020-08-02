@@ -29,7 +29,7 @@ WORKDIR /app
 
 # Copy the Pre-built binary file from the previous stage
 COPY --from=builder /app/main .
-COPY --from=builder /app/config ./config
+COPY --from=builder /app/internal/config ./internal/config
 
 # Command to run the executable
 CMD ["./main"]
