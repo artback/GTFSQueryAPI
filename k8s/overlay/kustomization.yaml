@@ -1,0 +1,7 @@
+bases:
+- ../..
+patchesStategicMerge:
+- deployment.yaml
+- service.yaml
+- ingress.yaml
+

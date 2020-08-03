@@ -1,0 +1,15 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: gtfs-query-api-ingress
+  namespace: gtfs-query
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+    - host: v3.gtfs-query.allbin.se
+      http:
+        paths:
+          - backend:
+              serviceName: go-gtfs-query-api
+              servicePort: 80

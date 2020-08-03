@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-gtfs-query-api
+  namespace: gtfs-query
+spec:
+  selector:
+    app: go-gtfs-query-api
+  ports:
+    - port: 80
+      targetPort: 8080
