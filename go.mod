@@ -8,5 +8,5 @@ require (
 	github.com/lib/pq v0.0.0-20180201184707-88edab080323
 	github.com/martinlindhe/google-geolocate v0.0.0-20170601090011-fec8026db902
 	github.com/stretchr/testify v1.5.1 // indirect
-	gopkg.in/yaml.v2 v2.2.2
+	gopkg.in/yaml.v2 v2.2.8
 )
