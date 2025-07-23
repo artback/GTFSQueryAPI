@@ -20,6 +20,8 @@ spec:
       labels:
         app: go-gtfs-query-api
     spec:
+      securityContext:
+        runAsNonRoot: true
       restartPolicy: Always
       containers:
         - image: eu.gcr.io/allbinary-204807/gtfs/go-gtfs-query-api
