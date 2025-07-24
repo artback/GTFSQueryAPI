@@ -32,4 +32,8 @@ COPY --from=builder /app/main .
 COPY --from=builder /app/internal/config ./internal/config
 
 # Command to run the executable
+RUN apk add --no-cache shadow && \
+    useradd -U -u 1000 appuser && \
+    chown -R 1000:1000 /app
+USER 1000
 CMD ["./main"]
